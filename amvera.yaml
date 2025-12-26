@@ -1,0 +1,11 @@
+meta:
+  environment: node
+  toolchain:
+    name: npm
+    version: 20
+build:
+  skip: "yes"
+run:
+  scriptName: fortune-backend/src/index.js
+  persistenceMount: /data
+  containerPort: 3000

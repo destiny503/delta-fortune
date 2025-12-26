@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="icon" href="/favicon.png" type="image/x-icon" />
+    <script src="/modules/gsap.min.js"></script>
+    <script src="/modules/winwheel.min.js"></script>
+    <script src="/modules/snow/Snow.js"></script>
+    <script src="/modules/confetti.min.js"></script>
+    <link rel="stylesheet" href="/modules/snow/snow.min.css" />
+    <title>Колесо Фортуны</title>
+  </head>
+
+  <body>
+    <div id="popup" class="modal">
+      <div class="popup__inner">
+        <p>Колесо Фортуны<span class="delta">#DELTA</span></p>
+        <p class="instruction">Введите ваш персональный код:</p>
+        <input
+          id="codeInput"
+          type="text"
+          placeholder="....."
+          maxlength="5"
+          autocomplete="off"
+        />
+        <button id="loginButton" class="popup__button" disabled>OK</button>
+      </div>
+    </div>
+    <div class="app">
+      <div class="profile">
+        <img class="avatar" src="/images/santa-face.png" />
+        <p class="username">—</p>
+      </div>
+      <div class="wheel">
+        <img class="pointer" src="/images/pointer.png" />
+        <canvas id="canvas" width="500" height="500"></canvas>
+        <button id="spinButton" class="button">
+          <span class="button-text">Мне повезёт 👆</span>
+        </button>
+      </div>
+    </div>
+
+    <script>
+      const apiUrl = "http://localhost:3000";
+
+      const state = {
+        app: "INIT",
+        user: null,
+        gift: null,
+        ticking: false,
+        lastAngle: 0,
+      };
+
+      const popup = document.getElementById("popup");
+      const codeInput = document.getElementById("codeInput");
+      const loginButton = document.getElementById("loginButton");
+      const spinButton = document.getElementById("spinButton");
+      const buttonText = spinButton.querySelector(".button-text");
+      const username = document.querySelector(".username");
+
+      const audio = new Audio("/sounds/tick.mp3");
+      const music = new Audio("/sounds/soundtrack.mp3");
+      const clickSound = new Audio("/sounds/pop.mp3");
+      music.volume = 0.5;
+      music.loop = true;
+
+      const wheel = new Winwheel({
+        numSegments: 16,
+        segments: [
+          { fillStyle: "#5da9ff", text: "путешествие" },
+          { fillStyle: "#ffd364", text: "прибыль" },
+          { fillStyle: "#ff4f4f", text: "удача" },
+          { fillStyle: "#ffffff", text: "здоровье" },
+          { fillStyle: "#ff87c9", text: "успех" },
+          { fillStyle: "#5da9ff", text: "изобилие" },
+          { fillStyle: "#ffd364", text: "процветание" },
+          { fillStyle: "#ff4f4f", text: "богатство" },
+          { fillStyle: "#ffffff", text: "страсть" },
+          { fillStyle: "#00d962", text: "чудеса" },
+          { fillStyle: "#ff87c9", text: "подарки" },
+          { fillStyle: "#5da9ff", text: "исполнение желаний" },
+          { fillStyle: "#ffd364", text: "хорошие новости" },
+          { fillStyle: "#ff4f4f", text: "любовь" },
+          { fillStyle: "#ffffff", text: "гармония" },
+          { fillStyle: "#ff87c9", text: "счастье" },
+        ],
+        animation: {
+          type: "spinToStop",
+          duration: 5,
+          spins: 1,
+          callbackFinished: onSpinEnd,
+        },
+      });
+
+      console.log("© 2025 Artur Rakhmatullin (https://github.com/destiny503)");
+
+      const sectorAngle = 360 / wheel.numSegments;
+
+      function updateProfileOffset() {
+        const profile = document.querySelector(".profile");
+        if (!profile) return;
+
+        const rect = profile.getBoundingClientRect();
+        document.documentElement.style.setProperty(
+          "--profile-height",
+          `${rect.bottom}px`
+        );
+      }
+
+      function render() {
+        popup.style.display = state.app === "INIT" ? "flex" : "none";
+
+        const app = document.querySelector(".app");
+        const wheelEl = document.querySelector(".wheel");
+        const profileEl = document.querySelector(".profile");
+
+        wheelEl.style.display = state.app === "PLAYING" ? "flex" : "none";
+
+        profileEl.style.display =
+          state.app === "PLAYING" || state.app === "RESULT" ? "flex" : "none";
+
+        app.classList.remove("centered", "result");
+
+        if (state.app === "PLAYING") {
+          app.classList.add("centered");
+        }
+
+        if (state.app === "RESULT") {
+          app.classList.add("result");
+        }
+      }
+
+      function manualTick() {
+        if (!state.ticking) return;
+
+        const angle = wheel.rotationAngle % 360;
+        if (Math.abs(angle - state.lastAngle) >= sectorAngle) {
+          state.lastAngle = angle;
+          audio.currentTime = 0;
+          audio.play().catch(() => {});
+        }
+        requestAnimationFrame(manualTick);
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        render();
+        codeInput.focus();
+        new Snow({ showSnowBallsIsMobile: false });
+
+        music.play().catch(() => {
+          console.log(
+            "Автоплей заблокирован, нажмите экран для воспроизведения музыки."
+          );
+        });
+      });
+
+      async function login() {
+        const code = codeInput.value.trim();
+        loginButton.disabled = true;
+        try {
+          const res = await fetch(`${apiUrl}/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code }),
+          });
+
+          if (!res.ok) throw new Error();
+
+          const data = await res.json();
+          state.user = data;
+          username.textContent = data.name;
+
+          if (data.wheelSpun && data.gift) {
+            state.app = "RESULT";
+            showGift(data.gift);
+          } else {
+            state.app = "PLAYING";
+          }
+
+          render();
+        } catch {
+          loginButton.disabled = false;
+          alert("Неправильный код");
+        }
+      }
+
+      async function spin() {
+        spinButton.disabled = true;
+        buttonText.textContent = "Оставайтесь на линии ...";
+
+        try {
+          const res = await fetch(`${apiUrl}/spin`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code: codeInput.value.trim() }),
+          });
+
+          if (!res.ok) throw new Error();
+
+          state.gift = await res.json();
+          state.ticking = true;
+          state.lastAngle = wheel.rotationAngle;
+          manualTick();
+          wheel.startAnimation();
+        } catch {
+          alert("Ошибка соединения");
+        }
+      }
+
+      function onSpinEnd(segment) {
+        state.ticking = false;
+
+        const specialSegments = [10, 11, 13];
+        if (specialSegments.includes(segment.segmentNumber)) {
+          buttonText.textContent = `В 2026 тебя ждут ${segment.text.toUpperCase()}!`;
+        } else {
+          buttonText.textContent = `В 2026 тебя ждёт ${segment.text.toUpperCase()}!`;
+        }
+
+        spinButton.disabled = false;
+
+        setTimeout(() => {
+          showSecretImage(state.gift);
+        }, 2000);
+      }
+
+      function showSecretImage(gift) {
+        const wrapper = document.createElement("div");
+        wrapper.className = "secret-gift-wrapper";
+
+        const container = document.createElement("div");
+        container.className = "secret-gift-container";
+
+        const glow = document.createElement("div");
+        glow.className = "secret-gift-glow";
+
+        const img = document.createElement("img");
+        img.src = "images/secret-gift.png";
+        img.className = "secret-gift";
+
+        container.appendChild(glow);
+        container.appendChild(img);
+        wrapper.appendChild(container);
+        document.body.appendChild(wrapper);
+
+        container.addEventListener("click", () => {
+          clickSound.play().catch(() => {});
+          confetti({ count: 300 });
+          wrapper.remove();
+          showGift(gift);
+
+          state.app = "RESULT";
+          render();
+        });
+      }
+
+      function showGift(gift) {
+        const modal = document.createElement("div");
+        modal.className = "modal";
+        modal.style.display = "flex";
+        modal.style.background = "rgba(0,0,0,.8)";
+        modal.style.alignItems = "flex-start";
+        modal.style.paddingTop = "env(safe-area-inset-top)";
+        modal.style.zIndex = 1000;
+
+        modal.innerHTML = `
+          <div style="
+            margin-top: clamp(1rem, 15vh, 20rem);
+            background-color:#4acfff;
+            padding: 1rem;
+            border-radius:1rem;
+            text-align:center;
+            max-width:90vw;
+            max-height:90vh;
+          ">
+            <h2 style="
+              font-size:1.5rem;
+              font-weight:bold;
+              color:white;
+              text-shadow:-1px -1px 5px #00bbff;
+              padding-bottom:1rem;
+            ">
+              Поздравляем! Вы выиграли<br>${gift.title.toUpperCase()}!
+            </h2>
+
+            <img
+              src="${apiUrl}${gift.imageUrl}"
+              style="max-width:100%;max-height:70vh;border-radius:1rem;"
+            />
+          </div>
+        `;
+
+        document.body.appendChild(modal);
+      }
+
+      codeInput.addEventListener("input", () => {
+        loginButton.disabled = codeInput.value.trim().length !== 5;
+      });
+
+      loginButton.addEventListener("click", login);
+      spinButton.addEventListener("click", spin);
+
+      document.addEventListener("DOMContentLoaded", () => {
+        render();
+        codeInput.focus();
+        new Snow({ showSnowBallsIsMobile: true });
+      });
+    </script>
+  </body>
+</html>
