@@ -2,7 +2,7 @@ meta:
   environment: node
   toolchain:
     name: npm
-    version: 20
+    version: 20.18.0
 build:
   skip: "yes"
 run:
