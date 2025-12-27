@@ -6,8 +6,8 @@ meta:
 build:
   artifacts:
     "*": /
+  additionalCommands: npx prisma generate
 run:
-  workingDirectory: fortune
   scriptName: src/index.js
   persistenceMount: /data
   containerPort: 3000
