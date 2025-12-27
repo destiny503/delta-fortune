@@ -6,7 +6,8 @@ meta:
 build:
   artifacts:
     "*": /
-  additionalCommands: npm run migrate
+  additionalCommands: npm run build
+  scriptArguments: npm run start
 run:
   scriptName: src/index.js
   persistenceMount: /data
