@@ -7,7 +7,7 @@ meta:
 build:
   artifacts:
     "*": /
-  additionalCommands: npm run deploy
+  additionalCommands: npm run build
 
 run:
   scriptName: src/index.js
