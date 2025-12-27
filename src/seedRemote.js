@@ -8,6 +8,9 @@ async function seed() {
   try {
     const data = JSON.parse(fs.readFileSync("prisma/seed-data.json", "utf-8"));
 
+    await prisma.log.deleteMany();
+    await prisma.gift.deleteMany();
+    await prisma.user.deleteMany();
     // Пользователи
     for (const user of data.users) {
       await prisma.user.create({
@@ -30,19 +33,6 @@ async function seed() {
           imageUrl: gift.imageUrl,
           isTaken: gift.isTaken,
           userId: gift.userId || null,
-        },
-      });
-    }
-
-    // Логи
-    for (const log of data.logs) {
-      await prisma.log.create({
-        data: {
-          id: log.id,
-          action: log.action,
-          userId: log.userId || null,
-          meta: log.meta || null,
-          createdAt: new Date(log.createdAt),
         },
       });
     }

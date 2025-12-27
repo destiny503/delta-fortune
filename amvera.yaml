@@ -3,12 +3,13 @@ meta:
   toolchain:
     name: npm
     version: 20.18.0
+
 build:
   artifacts:
     "*": /
   additionalCommands: npm run deploy
+
 run:
   scriptName: src/index.js
-  scriptArguments: npm run start
   persistenceMount: /data
   containerPort: 3000
