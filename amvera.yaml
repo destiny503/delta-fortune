@@ -4,8 +4,10 @@ meta:
     name: npm
     version: 20.18.0
 build:
-  skip: "yes"
+  artifacts:
+    "*": /
 run:
-  scriptName: fortune-backend/src/index.js
+  workingDirectory: fortune
+  scriptName: src/index.js
   persistenceMount: /data
   containerPort: 3000
