@@ -7,8 +7,8 @@ build:
   artifacts:
     "*": /
   additionalCommands: npm run build
-  scriptArguments: npm run start
 run:
   scriptName: src/index.js
+  scriptArguments: npm run start
   persistenceMount: /data
   containerPort: 3000
