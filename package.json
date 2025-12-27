@@ -7,7 +7,7 @@
     "dev": "nodemon src/index.js",
     "build": "prisma generate && prisma migrate deploy",
     "seed": "node src/seedRemote.js",
-    "deploy": "npm install && npm run build && npm run seed && npm run start",
+    "deploy": "npm run build && npm run seed && npm run start",
     "start": "node src/index.js"
   },
   "keywords": [],
