@@ -13,12 +13,6 @@ app.use(express.json());
 
 app.use(express.static(path.join(process.cwd(), "public")));
 
-// app.use("/images", express.static(path.join(process.cwd(), "public/images")));
-
-app.get("*", (req, res) => {
-  res.sendFile(path.join(process.cwd(), "public/index.html"));
-});
-
 // ===== API =====
 app.post("/login", async (req, res) => {
   const { code } = req.body;
@@ -72,6 +66,10 @@ app.post("/spin", async (req, res) => {
   });
 
   res.json(selectedGift);
+});
+
+app.get("/*", (req, res) => {
+  res.sendFile(path.join(process.cwd(), "public/index.html"));
 });
 
 const PORT = process.env.PORT || 3000;
