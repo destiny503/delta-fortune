@@ -66,6 +66,21 @@
       music.volume = 0.5;
       music.loop = true;
 
+      let musicStarted = false;
+
+      function startMusicOnce() {
+        if (musicStarted) return;
+        musicStarted = true;
+
+        music.play().catch(() => {});
+
+        document.removeEventListener("click", startMusicOnce);
+        document.removeEventListener("touchstart", startMusicOnce);
+      }
+
+      document.addEventListener("click", startMusicOnce, { once: true });
+      document.addEventListener("touchstart", startMusicOnce, { once: true });
+
       const wheel = new Winwheel({
         numSegments: 16,
         segments: [
@@ -143,18 +158,6 @@
         }
         requestAnimationFrame(manualTick);
       }
-
-      document.addEventListener("DOMContentLoaded", () => {
-        render();
-        codeInput.focus();
-        new Snow({ showSnowBallsIsMobile: false });
-
-        music.play().catch(() => {
-          console.log(
-            "Автоплей заблокирован, нажмите экран для воспроизведения музыки."
-          );
-        });
-      });
 
       async function login() {
         const code = codeInput.value.trim();
