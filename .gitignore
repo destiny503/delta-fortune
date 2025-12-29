@@ -11,3 +11,4 @@ build/
 Thumbs.db
 .env.amvera
 .env.local
+src/reset-game-state.js

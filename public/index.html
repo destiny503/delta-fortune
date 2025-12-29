@@ -164,6 +164,7 @@
       async function login() {
         const code = codeInput.value.trim();
         loginButton.disabled = true;
+
         try {
           const res = await fetch(`${apiUrl}/login`, {
             method: "POST",
@@ -171,9 +172,16 @@
             body: JSON.stringify({ code }),
           });
 
-          if (!res.ok) throw new Error();
-
           const data = await res.json();
+
+          if (!res.ok) {
+            // ❗️ единственный alert — неправильный код
+            alert("Неправильный код");
+            console.warn("Login error:", data);
+            loginButton.disabled = false;
+            return;
+          }
+
           state.user = data;
           username.textContent = data.name;
 
@@ -185,9 +193,9 @@
           }
 
           render();
-        } catch {
+        } catch (err) {
+          console.error("Network error during login:", err);
           loginButton.disabled = false;
-          alert("Неправильный код");
         }
       }
 
@@ -202,15 +210,24 @@
             body: JSON.stringify({ code: codeInput.value.trim() }),
           });
 
-          if (!res.ok) throw new Error();
+          const data = await res.json();
 
-          state.gift = await res.json();
+          if (!res.ok) {
+            console.warn("Spin error:", data);
+            spinButton.disabled = false;
+            buttonText.textContent = "Мне повезёт 👆";
+            return;
+          }
+
+          state.gift = data;
           state.ticking = true;
           state.lastAngle = wheel.rotationAngle;
           manualTick();
           wheel.startAnimation();
-        } catch {
-          alert("Ошибка соединения");
+        } catch (err) {
+          console.error("Network error during spin:", err);
+          spinButton.disabled = false;
+          buttonText.textContent = "Мне повезёт 👆";
         }
       }
 
@@ -271,31 +288,31 @@
         modal.style.zIndex = 1000;
 
         modal.innerHTML = `
-          <div style="
-            margin-top: clamp(1rem, 15vh, 20rem);
-            background-color:#4acfff;
-            padding: 1rem;
-            border-radius:1rem;
-            text-align:center;
-            max-width:90vw;
-            max-height:90vh;
-          ">
-            <h2 style="
-              font-size:1.5rem;
-              font-weight:bold;
-              color:white;
-              text-shadow:-1px -1px 5px #00bbff;
-              padding-bottom:1rem;
-            ">
-              Поздравляем! Вы выиграли<br>${gift.title.toUpperCase()}!
-            </h2>
+                      <div style="
+                        margin-top: clamp(1rem, 15vh, 20rem);
+                        background-color:#4acfff;
+                        padding: 1rem;
+                        border-radius:1rem;
+                        text-align:center;
+                        max-width:90vw;
+                        max-height:90vh;
+                      ">
+                        <h2 style="
+                          font-size:1.5rem;
+                          font-weight:bold;
+                          color:white;
+                          text-shadow:-1px -1px 5px #00bbff;
+                          padding-bottom:1rem;
+                        ">
+                          Поздравляем! Вы выиграли<br>${gift.title.toUpperCase()}!
+                        </h2>
 
-            <img
-              src="${apiUrl}${gift.imageUrl}"
-              style="max-width:100%;max-height:70vh;border-radius:1rem;"
-            />
-          </div>
-        `;
+                        <img
+                          src="${apiUrl}${gift.imageUrl}"
+                          style="max-width:100%;max-height:70vh;border-radius:1rem;"
+                        />
+                      </div>
+                    `;
 
         document.body.appendChild(modal);
       }

@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon src/index.js",
-    "build": "prisma generate && prisma migrate deploy",
+    "build": "prisma generate && prisma migrate deploy && npm run seed && npm run start",
+    "seed": "node src/seedRemote.js",
     "start": "node src/index.js"
   },
   "keywords": [],
@@ -21,13 +22,5 @@
   },
   "devDependencies": {
     "nodemon": "^3.1.11"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/destiny503/delta-fortune.git"
-  },
-  "bugs": {
-    "url": "https://github.com/destiny503/delta-fortune/issues"
-  },
-  "homepage": "https://github.com/destiny503/delta-fortune#readme"
+  }
 }
