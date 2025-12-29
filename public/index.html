@@ -111,7 +111,9 @@
         },
       });
 
-      console.log("© 2025 Artur Rakhmatullin (https://github.com/destiny503)");
+      console.log(
+        "© 2025 Artur Rakhmatullin (https://destiny503.github.io/portfolio/)"
+      );
 
       const sectorAngle = 360 / wheel.numSegments;
 
@@ -175,7 +177,6 @@
           const data = await res.json();
 
           if (!res.ok) {
-            // ❗️ единственный alert — неправильный код
             alert("Неправильный код");
             console.warn("Login error:", data);
             loginButton.disabled = false;

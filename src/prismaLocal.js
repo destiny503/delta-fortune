@@ -5,7 +5,7 @@ dotenv.config();
 
 const prismaLocal = new PrismaClient({
   datasources: {
-    db: { url: process.env.DATABASE_URL }, // локальная база
+    db: { url: process.env.DATABASE_URL },
   },
 });
 

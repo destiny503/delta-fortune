@@ -11,11 +11,12 @@ async function seed() {
     await prisma.log.deleteMany();
     await prisma.gift.deleteMany();
     await prisma.user.deleteMany();
+
     // Пользователи
     for (const user of data.users) {
       await prisma.user.create({
         data: {
-          id: user.id, // чтобы сохранить id
+          id: user.id,
           name: user.name,
           code: user.code,
           wheelSpun: user.wheelSpun,

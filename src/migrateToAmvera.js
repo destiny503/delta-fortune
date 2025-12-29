@@ -11,7 +11,7 @@ async function migrate() {
     for (const u of users) {
       await prismaRemote.user.create({
         data: {
-          id: u.id, // сохраняем id, чтобы связи с подарками сохранились
+          id: u.id,
           name: u.name,
           code: u.code,
           wheelSpun: u.wheelSpun,
