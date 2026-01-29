@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
@@ -45,7 +45,7 @@
     </div>
 
     <script>
-      const apiUrl = "https://delta-fortune-destiny.amvera.io";
+      const apiUrl = "http://localhost:3000";
 
       const state = {
         app: "INIT",
@@ -112,7 +112,7 @@
       });
 
       console.log(
-        "© 2025 Artur Rakhmatullin (https://destiny503.github.io/portfolio/)"
+        "© 2025 Artur Rakhmatullin (https://destiny503.github.io/portfolio/)",
       );
 
       const sectorAngle = 360 / wheel.numSegments;
@@ -124,7 +124,7 @@
         const rect = profile.getBoundingClientRect();
         document.documentElement.style.setProperty(
           "--profile-height",
-          `${rect.bottom}px`
+          `${rect.bottom}px`,
         );
       }
 
