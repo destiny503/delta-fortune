@@ -8,6 +8,9 @@ Fullstack-приложение, разработано мной с нуля до
 - Успешное развёртывание на PaaS (Amvera).<br>
 
 Скриншоты:<br>
-![Screen  1](https://github.com/destiny503/delta-fortune/screen-1.png")<br>
-![Screen  2](https://github.com/destiny503/delta-fortune/screen-2.png")<br>
-![Screen  3](https://github.com/destiny503/delta-fortune/screen-3.png")
+
+![Screen  1](https://github.com/destiny503/delta-fortune/blob/main/screen-1.png")<br>
+
+![Screen  2](https://github.com/destiny503/delta-fortune/blob/main/screen-2.png")<br>
+
+![Screen  3](https://github.com/destiny503/delta-fortune/blob/main/screen-3.png")
